@@ -14,5 +14,5 @@ class Task(db.Model):
     task_content = db.Column(db.String(5000), nullable=False, unique=False)
     create_date = db.Column(db.DateTime(timezone=True), default=func.now())
     deadline = db.Column(db.DateTime(timezone=True), nullable=True)
-    complete_status = db.Column(db.Boolean, nullable=False)
+    complete_status = db.Column(db.Boolean, default=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
