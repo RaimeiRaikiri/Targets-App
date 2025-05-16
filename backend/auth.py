@@ -3,6 +3,7 @@ from flask_login import login_required, logout_user, login_user, current_user
 from .models import User
 from . import db
 from werkzeug.security import generate_password_hash, check_password_hash
+import re
 
 auth = Blueprint("auth", __name__)
 
@@ -44,7 +45,9 @@ def sign_up():
         elif len(first_name) < 2:
             flash("Name is too short", category="error")
         else:
+            # Sanatize inputs to prevent xss attacks and sql injections
             first_name = sanatize_input(first_name)
+            email = sanatize_input(email)
             password = generate_password_hash(password, "pbkdf2:sha256", salt_length=16)
             
             # Create new user and add to the database
@@ -70,8 +73,17 @@ def logout():
 
 
 def email_is_valid(email):
-    # Check for valid email
-    return True
+    # Check for valid email using regexpression
+    regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
+    
+    if(re.fullmatch(regex, email)):
+        return True
+    else:
+        return False
 
 def sanatize_input(input):
+    input = input.replace("&", "&amp;") 
+    input = input.replace("<", "&lt;")
+    input = input.replace(">", "&gt;")
+    
     return input
